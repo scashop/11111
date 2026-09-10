@@ -20,20 +20,17 @@
 <body>
 
 <div class="card">
-    <!-- 1. 手机号码登录界面 -->
     <div id="auth-box">
         <h2>手机号验证登录</h2>
         <input type="text" id="phone" placeholder="手机号 (例: +60123456789)">
         <button id="btn-send" onclick="sendOtp()">获取验证码</button>
 
-        <!-- 2. 验证码输入框 -->
         <div id="otp-box" class="hidden">
             <input type="text" id="otp-code" placeholder="输入 6 位验证码">
             <button onclick="verifyOtp()" class="secondary-btn">校验验证码并登录</button>
         </div>
     </div>
 
-    <!-- 3. 登录成功页面 -->
     <div id="dashboard-box" class="hidden">
         <h2>🎉 登录成功！</h2>
         <p>欢迎回来：<br><strong id="user-phone"></strong></p>
@@ -45,7 +42,7 @@
 
 <script>
     const SUPABASE_URL = 'https://bkjvxsdsrkwztvtubeps.supabase.co'; 
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJranZ4c2Rzcmt3enR2dHViZXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzcxODAsImV4cCI6MjEwNDYxMzE4MH0.ldmI53UrDMGSza9JMccRyLRZ1UGytQJc1HI2iHxz2K0'; 
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJranZ4c2Rzcmt3enR2dHViZXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzcxODAsImV4cCI6MjEwNDYxMzE4MH0.ldmI53UrDMGSza9JMccRyLRZ1UGytQJc1HI2iHxz2K0'; // 👈 仅在这里粘贴你的 anon key
     
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
