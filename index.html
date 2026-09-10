@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户认证测试页面</title>
-    <!-- 引入 Supabase 官方 JS SDK -->
+    <title>手机验证码登录测试</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
@@ -12,8 +11,8 @@
         input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
         button:hover { background: #0056b3; }
-        .secondary-btn { background: #6c757d; }
-        .secondary-btn:hover { background: #5a6268; }
+        .secondary-btn { background: #28a745; }
+        .secondary-btn:hover { background: #218838; }
         .msg { margin-top: 12px; font-size: 14px; text-align: center; }
         .hidden { display: none; }
     </style>
@@ -21,111 +20,97 @@
 <body>
 
 <div class="card">
-    <!-- 未登录状态界面 -->
+    <!-- 1. 手机号码登录界面 -->
     <div id="auth-box">
-        <h2 id="form-title">用户登录</h2>
-        <input type="email" id="email" placeholder="请输入邮箱">
-        <input type="password" id="password" placeholder="请输入密码">
-        
-        <button id="btn-login" onclick="login()">登录</button>
-        <button id="btn-register" onclick="register()" class="secondary-btn">注册新账号</button>
-        <button onclick="resetPassword()" style="background:transparent; color:#007bff; font-size:12px; margin-top:5px;">忘记密码？</button>
+        <h2>手机号验证登录</h2>
+        <input type="text" id="phone" placeholder="手机号 (例: +60123456789)">
+        <button id="btn-send" onclick="sendOtp()">获取验证码</button>
+
+        <!-- 2. 验证码输入框 -->
+        <div id="otp-box" class="hidden">
+            <input type="text" id="otp-code" placeholder="输入 6 位验证码">
+            <button onclick="verifyOtp()" class="secondary-btn">校验验证码并登录</button>
+        </div>
     </div>
 
-    <!-- 登录成功后的主界面 (演示跳转后页面) -->
+    <!-- 3. 登录成功页面 -->
     <div id="dashboard-box" class="hidden">
         <h2>🎉 登录成功！</h2>
-        <p>欢迎回来，<br><strong id="user-email"></strong></p>
-        <button onclick="logout()" class="secondary-btn">退出登录</button>
+        <p>欢迎回来：<br><strong id="user-phone"></strong></p>
+        <button onclick="logout()" style="background:#6c757d;">退出登录</button>
     </div>
 
     <div id="msg" class="msg"></div>
 </div>
 
 <script>
-    // 1. 填入你在 Supabase 复制的 URL 和 anon Key
-    const SUPABASE_URL ='https://bkjvxsdsrkwztvtubeps.supabase.co'; 
-    const SUPABASE_KEY ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJranZ4c2Rzcmt3enR2dHViZXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzcxODAsImV4cCI6MjEwNDYxMzE4MH0.ldmI53UrDMGSza9JMccRyLRZ1UGytQJc1HI2iHxz2K0';
+    const SUPABASE_URL = 'https://bkjvxsdsrkwztvtubeps.supabase.co'; 
+    const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY'; // 确保这里填入了你的 anon key
     
-    // 初始化 Supabase
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // 页面加载完成后，检查是否已经登录（自动记忆状态功能）
+    // 自动检测登录状态
     window.onload = async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) {
-            showDashboard(session.user.email);
+            showDashboard(session.user.phone || session.user.email);
         }
     };
 
-    // 2. 注册账号功能（自动发送验证邮件）
-    async function register() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        showMsg("正在发送注册邮件...", "blue");
-
-        const { data, error } = await supabaseClient.auth.signUp({
-            email: email,
-            password: password,
-        });
-
-        if (error) {
-            showMsg("注册失败: " + error.message, "red");
-        } else {
-            showMsg("注册请求已发送！请检查你的邮箱进行验证。", "green");
-        }
-    }
-
-    // 3. 登录功能
-    async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        showMsg("正在登录...", "blue");
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password,
-        });
-
-        if (error) {
-            showMsg("登录失败: " + error.message, "red");
-        } else {
-            showMsg("登录成功！跳转中...", "green");
-            showDashboard(data.user.email);
-        }
-    }
-
-    // 4. 忘记密码功能
-    async function resetPassword() {
-        const email = document.getElementById('email').value;
-        if (!email) {
-            showMsg("请先在邮箱框输入你的注册邮箱", "red");
+    // 发送手机验证码
+    async function sendOtp() {
+        const phone = document.getElementById('phone').value.trim();
+        if (!phone) {
+            showMsg("请输入手机号码", "red");
             return;
         }
-        showMsg("正在发送重置密码邮件...", "blue");
+        showMsg("正在发送验证码...", "blue");
 
-        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
+        const { data, error } = await supabaseClient.auth.signInWithOtp({
+            phone: phone
+        });
 
         if (error) {
             showMsg("发送失败: " + error.message, "red");
         } else {
-            showMsg("重置密码邮件已发送，请检查邮箱。", "green");
+            showMsg("验证码已发送！", "green");
+            document.getElementById('otp-box').classList.remove('hidden');
         }
     }
 
-    // 5. 退出登录功能
+    // 校验验证码
+    async function verifyOtp() {
+        const phone = document.getElementById('phone').value.trim();
+        const token = document.getElementById('otp-code').value.trim();
+        showMsg("正在校验...", "blue");
+
+        const { data, session, error } = await supabaseClient.auth.verifyOtp({
+            phone: phone,
+            token: token,
+            type: 'sms'
+        });
+
+        if (error) {
+            showMsg("验证失败: " + error.message, "red");
+        } else {
+            showMsg("验证成功！", "green");
+            showDashboard(data.user.phone);
+        }
+    }
+
+    // 退出登录
     async function logout() {
         await supabaseClient.auth.signOut();
         document.getElementById('auth-box').classList.remove('hidden');
+        document.getElementById('otp-box').classList.add('hidden');
         document.getElementById('dashboard-box').classList.add('hidden');
         showMsg("已退出登录", "black");
     }
 
-    // 界面显示辅助函数
-    function showDashboard(email) {
+    function showDashboard(userInfo) {
         document.getElementById('auth-box').classList.add('hidden');
         document.getElementById('dashboard-box').classList.remove('hidden');
-        document.getElementById('user-email').innerText = email;
+        document.getElementById('user-phone').innerText = userInfo;
         showMsg("", "black");
     }
 
