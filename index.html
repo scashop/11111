@@ -1,378 +1,140 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户登录与注册模板</title>
+    <title>用户认证测试页面</title>
+    <!-- 引入 Supabase 官方 JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --primary: #3f51b5;
-            --primary-dark: #2c3e9c;
-            --bg: #f4f6fb;
-            --card: #ffffff;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --border: #dbe2f0;
-            --success: #0f9d58;
-            --warning: #f59e0b;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
-            background: linear-gradient(160deg, #eef2ff 0%, #f8fbff 100%);
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .panel {
-            width: 100%;
-            max-width: 460px;
-            background: var(--card);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            box-shadow: 0 12px 35px rgba(27, 39, 94, 0.12);
-            overflow: hidden;
-        }
-
-        .panel-header {
-            padding: 24px 24px 12px;
-            text-align: center;
-        }
-
-        .panel-header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .panel-header p {
-            margin: 10px 0 0;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .tabs {
-            display: flex;
-            margin: 0 16px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .tab-btn {
-            flex: 1;
-            border: none;
-            background: #f8f9fc;
-            color: var(--muted);
-            padding: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .form-wrap {
-            padding: 20px 24px 26px;
-        }
-
-        .form {
-            display: none;
-        }
-
-        .form.active {
-            display: block;
-        }
-
-        .field {
-            margin-bottom: 14px;
-        }
-
-        .field label {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        .field input {
-            width: 100%;
-            padding: 11px 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .field input:focus {
-            border-color: var(--primary);
-        }
-
-        .inline-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .inline-group input {
-            flex: 1;
-        }
-
-        .small-btn {
-            white-space: nowrap;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            background: #fff;
-            border-radius: 8px;
-            padding: 0 12px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .links {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 14px;
-        }
-
-        .link-btn {
-            border: none;
-            background: none;
-            color: var(--primary);
-            padding: 0;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .submit-btn {
-            width: 100%;
-            border: none;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .submit-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .tip {
-            margin-top: 12px;
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .message {
-            min-height: 22px;
-            margin-top: 12px;
-            font-size: 13px;
-        }
-
-        .message.success {
-            color: var(--success);
-        }
-
-        .message.warn {
-            color: var(--warning);
-        }
-
-        .success-screen {
-            display: none;
-            padding: 40px 24px;
-            text-align: center;
-        }
-
-        .success-screen.show {
-            display: block;
-        }
-
-        .success-screen h2 {
-            margin: 0;
-            font-size: 30px;
-            color: var(--success);
-        }
-
-        .success-screen p {
-            margin-top: 12px;
-            color: var(--muted);
-        }
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f2f5; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 320px; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #0056b3; }
+        .secondary-btn { background: #6c757d; }
+        .secondary-btn:hover { background: #5a6268; }
+        .msg { margin-top: 12px; font-size: 14px; text-align: center; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-<main class="panel">
-    <section id="auth-panel">
-        <div class="panel-header">
-            <h1>用户系统模板</h1>
-            <p>包含登录、忘记密码、邮箱验证码注册流程</p>
-        </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" type="button" data-tab="login">登录</button>
-            <button class="tab-btn" type="button" data-tab="register">注册</button>
-        </div>
+<div class="card">
+    <!-- 未登录状态界面 -->
+    <div id="auth-box">
+        <h2 id="form-title">用户登录</h2>
+        <input type="email" id="email" placeholder="请输入邮箱">
+        <input type="password" id="password" placeholder="请输入密码">
+        
+        <button id="btn-login" onclick="login()">登录</button>
+        <button id="btn-register" onclick="register()" class="secondary-btn">注册新账号</button>
+        <button onclick="resetPassword()" style="background:transparent; color:#007bff; font-size:12px; margin-top:5px;">忘记密码？</button>
+    </div>
 
-        <div class="form-wrap">
-            <form id="login-form" class="form active">
-                <div class="field">
-                    <label for="login-username">用户名</label>
-                    <input id="login-username" type="text" placeholder="请输入用户名" required>
-                </div>
-                <div class="field">
-                    <label for="login-password">密码</label>
-                    <input id="login-password" type="password" placeholder="请输入密码" required minlength="6">
-                </div>
-                <div class="links">
-                    <button class="link-btn" id="forgot-btn" type="button">忘记密码？</button>
-                </div>
-                <button class="submit-btn" type="submit">登录</button>
-                <div class="tip">演示模板：默认只做前端基础校验与流程展示。</div>
-                <div id="login-message" class="message"></div>
-            </form>
+    <!-- 登录成功后的主界面 (演示跳转后页面) -->
+    <div id="dashboard-box" class="hidden">
+        <h2>🎉 登录成功！</h2>
+        <p>欢迎回来，<br><strong id="user-email"></strong></p>
+        <button onclick="logout()" class="secondary-btn">退出登录</button>
+    </div>
 
-            <form id="register-form" class="form">
-                <div class="field">
-                    <label for="register-username">用户名</label>
-                    <input id="register-username" type="text" placeholder="请输入用户名" required>
-                </div>
-                <div class="field">
-                    <label for="register-email">邮箱</label>
-                    <input id="register-email" type="email" placeholder="请输入邮箱" required>
-                </div>
-                <div class="field">
-                    <label for="register-code">邮箱验证码</label>
-                    <div class="inline-group">
-                        <input id="register-code" type="text" placeholder="请输入6位验证码" maxlength="6" required>
-                        <button class="small-btn" id="code-btn" type="button">获取验证码</button>
-                    </div>
-                </div>
-                <div class="field">
-                    <label for="register-password">密码</label>
-                    <input id="register-password" type="password" placeholder="请输入密码（至少6位）" minlength="6" required>
-                </div>
-                <button class="submit-btn" type="submit">注册并登录</button>
-                <div class="tip">演示验证码固定为：123456</div>
-                <div id="register-message" class="message"></div>
-            </form>
-        </div>
-    </section>
-
-    <section id="success-screen" class="success-screen">
-        <h2>请开始你的操作</h2>
-        <p>登录/注册成功，已进入下一页面。</p>
-    </section>
-</main>
+    <div id="msg" class="msg"></div>
+</div>
 
 <script>
-    const tabs = document.querySelectorAll(".tab-btn");
-    const loginForm = document.getElementById("login-form");
-    const registerForm = document.getElementById("register-form");
-    const loginMessage = document.getElementById("login-message");
-    const registerMessage = document.getElementById("register-message");
-    const forgotBtn = document.getElementById("forgot-btn");
-    const codeBtn = document.getElementById("code-btn");
-    const authPanel = document.getElementById("auth-panel");
-    const successScreen = document.getElementById("success-screen");
-    const DEMO_CODE = "123456";
+    // 1. 填入你在 Supabase 复制的 URL 和 anon Key
+    const SUPABASE_URL = 'https://bkjvxsdsrkwztvtubeps.supabase.co/rest/v1/'; 
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJranZ4c2Rzcmt3enR2dHViZXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMzcxODAsImV4cCI6MjEwNDYxMzE4MH0.ldmI53UrDMGSza9JMccRyLRZ1UGytQJc1HI2iHxz2K0';
+    
+    // 初始化 Supabase
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function switchTab(target) {
-        tabs.forEach((tab) => {
-            tab.classList.toggle("active", tab.dataset.tab === target);
+    // 页面加载完成后，检查是否已经登录（自动记忆状态功能）
+    window.onload = async () => {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            showDashboard(session.user.email);
+        }
+    };
+
+    // 2. 注册账号功能（自动发送验证邮件）
+    async function register() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        showMsg("正在发送注册邮件...", "blue");
+
+        const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
         });
-        loginForm.classList.toggle("active", target === "login");
-        registerForm.classList.toggle("active", target === "register");
-        loginMessage.textContent = "";
-        registerMessage.textContent = "";
-        loginMessage.className = "message";
-        registerMessage.className = "message";
+
+        if (error) {
+            showMsg("注册失败: " + error.message, "red");
+        } else {
+            showMsg("注册请求已发送！请检查你的邮箱进行验证。", "green");
+        }
     }
 
-    function showSuccess() {
-        authPanel.style.display = "none";
-        successScreen.classList.add("show");
+    // 3. 登录功能
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        showMsg("正在登录...", "blue");
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            showMsg("登录失败: " + error.message, "red");
+        } else {
+            showMsg("登录成功！跳转中...", "green");
+            showDashboard(data.user.email);
+        }
     }
 
-    tabs.forEach((tab) => {
-        tab.addEventListener("click", () => switchTab(tab.dataset.tab));
-    });
-
-    forgotBtn.addEventListener("click", () => {
-        loginMessage.textContent = "请通过邮箱验证码或客服联系重置密码。";
-        loginMessage.className = "message warn";
-    });
-
-    codeBtn.addEventListener("click", () => {
-        const email = document.getElementById("register-email").value.trim();
+    // 4. 忘记密码功能
+    async function resetPassword() {
+        const email = document.getElementById('email').value;
         if (!email) {
-            registerMessage.textContent = "请先输入邮箱，再获取验证码。";
-            registerMessage.className = "message warn";
+            showMsg("请先在邮箱框输入你的注册邮箱", "red");
             return;
         }
-        registerMessage.textContent = "验证码已发送（演示码：123456）。";
-        registerMessage.className = "message success";
-    });
+        showMsg("正在发送重置密码邮件...", "blue");
 
-    loginForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const username = document.getElementById("login-username").value.trim();
-        const password = document.getElementById("login-password").value;
+        const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
 
-        if (!username || !password) {
-            loginMessage.textContent = "请输入用户名和密码。";
-            loginMessage.className = "message warn";
-            return;
+        if (error) {
+            showMsg("发送失败: " + error.message, "red");
+        } else {
+            showMsg("重置密码邮件已发送，请检查邮箱。", "green");
         }
-        if (password.length < 6) {
-            loginMessage.textContent = "密码长度不能少于 6 位。";
-            loginMessage.className = "message warn";
-            return;
-        }
+    }
 
-        loginMessage.textContent = "登录成功，正在跳转...";
-        loginMessage.className = "message success";
-        setTimeout(showSuccess, 600);
-    });
+    // 5. 退出登录功能
+    async function logout() {
+        await supabaseClient.auth.signOut();
+        document.getElementById('auth-box').classList.remove('hidden');
+        document.getElementById('dashboard-box').classList.add('hidden');
+        showMsg("已退出登录", "black");
+    }
 
-    registerForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const username = document.getElementById("register-username").value.trim();
-        const code = document.getElementById("register-code").value.trim();
-        const password = document.getElementById("register-password").value;
+    // 界面显示辅助函数
+    function showDashboard(email) {
+        document.getElementById('auth-box').classList.add('hidden');
+        document.getElementById('dashboard-box').classList.remove('hidden');
+        document.getElementById('user-email').innerText = email;
+        showMsg("", "black");
+    }
 
-        if (!username) {
-            registerMessage.textContent = "请输入用户名。";
-            registerMessage.className = "message warn";
-            return;
-        }
-        if (code !== DEMO_CODE) {
-            registerMessage.textContent = "验证码错误，请输入 123456（演示）。";
-            registerMessage.className = "message warn";
-            return;
-        }
-        if (password.length < 6) {
-            registerMessage.textContent = "密码长度不能少于 6 位。";
-            registerMessage.className = "message warn";
-            return;
-        }
-
-        registerMessage.textContent = "注册成功，正在跳转...";
-        registerMessage.className = "message success";
-        setTimeout(showSuccess, 600);
-    });
+    function showMsg(text, color) {
+        const msgDiv = document.getElementById('msg');
+        msgDiv.innerText = text;
+        msgDiv.style.color = color;
+    }
 </script>
+
 </body>
 </html>
